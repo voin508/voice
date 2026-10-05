@@ -1,0 +1,3 @@
+[submodule "vendor/GigaAM"]
+	path = vendor/GigaAM
+	url = https://github.com/salute-developers/GigaAM.git

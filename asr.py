@@ -28,7 +28,7 @@ def ensure_ffmpeg() -> None:
 
     raise RuntimeError(
         "ffmpeg не найден. Варианты: sudo apt install -y ffmpeg "
-        "или положите бинарник в gigaam-worker/bin/ffmpeg"
+        "или положите бинарник в voice-transcription/bin/ffmpeg"
     )
 
 
@@ -164,7 +164,4 @@ def load_gigaam(model_name: str, device: str | None = None):
 
 def find_gigaam_sources() -> list[Path]:
     here = Path(__file__).resolve().parent
-    return [
-        here / "vendor" / "GigaAM",
-        here.parent / "GigaAM-main",
-    ]
+    return [here / "vendor" / "GigaAM"]

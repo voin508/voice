@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VENV="$ROOT/.venv/bin/python"
+export GIGAAM_CACHE="${GIGAAM_CACHE:-$ROOT/.cache}"
 
 if [[ ! -x "$VENV" ]]; then
   echo "Нет $VENV — сначала ./install.sh" >&2

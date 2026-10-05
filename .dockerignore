@@ -1,0 +1,7 @@
+.venv/
+.cache/
+calls/
+transcripts/
+__pycache__/
+*.pyc
+.git/

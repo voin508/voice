@@ -152,6 +152,22 @@ def format_dialogue_text(turns: list[dict]) -> str:
     return "\n".join(lines)
 
 
+def resolve_txt_path(
+    output: Path,
+    *,
+    output_file: Path | None,
+    default_stem: str,
+) -> Path:
+    if output_file is not None:
+        path = output_file.expanduser().resolve()
+    elif output.suffix.lower() == ".txt":
+        path = output.expanduser().resolve()
+    else:
+        path = (output.expanduser().resolve() / f"{default_stem}.gigaam.dialogue.txt")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    return path
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Диалог rx/tx через GigaAM")
     parser.add_argument("call", nargs="?", type=Path, help="Стем звонка (подставит -rx.wav и -tx.wav)")
@@ -159,7 +175,19 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--tx", type=Path, help="WAV канала tx")
     parser.add_argument("--model", default="v3_e2e_rnnt", help="Модель GigaAM")
     parser.add_argument("--device", default=None, help="cuda или cpu")
-    parser.add_argument("--output-dir", "-o", type=Path, default=ROOT / "transcripts")
+    parser.add_argument(
+        "--output-dir",
+        "-o",
+        type=Path,
+        default=ROOT / "transcripts",
+        help="Папка для txt или путь к файлу, если заканчивается на .txt",
+    )
+    parser.add_argument(
+        "--output-file",
+        "-f",
+        type=Path,
+        help="Точный путь к txt (альтернатива -o …/имя.txt)",
+    )
     parser.add_argument("--search-dir", action="append", default=[], type=Path, help="Где искать rx/tx по стему")
     parser.add_argument("--quiet", action="store_true", help="Печатать только путь к txt")
     return parser.parse_args()
@@ -226,9 +254,11 @@ def main() -> int:
     turns = merge_dialogue(rx_turns, tx_turns, role_map)
     dialogue_text = format_dialogue_text(turns)
     stem = infer_output_stem(rx_path, tx_path)
-
-    args.output_dir.mkdir(parents=True, exist_ok=True)
-    txt_path = args.output_dir / f"{stem}.gigaam.dialogue.txt"
+    txt_path = resolve_txt_path(
+        args.output_dir,
+        output_file=args.output_file,
+        default_stem=stem,
+    )
     txt_path.write_text(dialogue_text + "\n", encoding="utf-8")
 
     timing_line = (
